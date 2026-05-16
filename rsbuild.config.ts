@@ -5,6 +5,44 @@ import { pluginBasicSsl } from '@rsbuild/plugin-basic-ssl';
 
 const path = require('path');
 
+// =============================================================================
+// Environment Variable Validation
+// =============================================================================
+// Log environment variables during build for debugging
+const envVars = {
+    APP_ENV: process.env.APP_ENV || 'development',
+    CLIENT_ID: process.env.CLIENT_ID || '',
+    APP_ID: process.env.APP_ID || '',
+    GD_CLIENT_ID: process.env.GD_CLIENT_ID || '',
+    GD_APP_ID: process.env.GD_APP_ID || '',
+    GD_API_KEY: process.env.GD_API_KEY || '',
+};
+
+// Validate required environment variables
+const requiredVars = ['CLIENT_ID'];
+const missingVars = requiredVars.filter(varName => !envVars[varName as keyof typeof envVars]);
+
+if (missingVars.length > 0) {
+    console.warn(`
+⚠️  WARNING: Missing environment variables during build:
+    ${missingVars.join(', ')}
+    
+    If this is intentional (e.g., will be set via Vercel Dashboard),
+    you can ignore this warning. OAuth login will not work until these are set.
+    
+    For local development, add these to .env.local:
+    - See .env.example for documentation
+    - See Vercel Dashboard settings for production values
+`);
+}
+
+console.log(`
+✅ Build Configuration:
+   Environment: ${envVars.APP_ENV}
+   OAuth Enabled: ${envVars.CLIENT_ID ? 'YES' : 'NO (set CLIENT_ID to enable)'}
+   Google Drive: ${envVars.GD_CLIENT_ID ? 'YES' : 'NO (optional)'}
+`);
+
 export default defineConfig({
     plugins: [
         pluginSass({
@@ -26,12 +64,17 @@ export default defineConfig({
         },
         define: {
             'process.env': {
-                APP_ENV: JSON.stringify(process.env.APP_ENV),
-                CLIENT_ID: JSON.stringify(process.env.CLIENT_ID),
-                APP_ID: JSON.stringify(process.env.APP_ID),
-                GD_CLIENT_ID: JSON.stringify(process.env.GD_CLIENT_ID),
-                GD_APP_ID: JSON.stringify(process.env.GD_APP_ID),
-                GD_API_KEY: JSON.stringify(process.env.GD_API_KEY),
+                // Core environment variables
+                APP_ENV: JSON.stringify(envVars.APP_ENV),
+                
+                // OAuth variables (required)
+                CLIENT_ID: JSON.stringify(envVars.CLIENT_ID),
+                APP_ID: JSON.stringify(envVars.APP_ID),
+                
+                // Google Drive variables (optional)
+                GD_CLIENT_ID: JSON.stringify(envVars.GD_CLIENT_ID),
+                GD_APP_ID: JSON.stringify(envVars.GD_APP_ID),
+                GD_API_KEY: JSON.stringify(envVars.GD_API_KEY),
             },
         },
         alias: {

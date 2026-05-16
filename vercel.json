@@ -1,0 +1,98 @@
+{
+  "$schema": "https://vercel.com/schemas/vercel.json",
+  "version": 2,
+  "buildCommand": "npm run build",
+  "devCommand": "npm run start",
+  "installCommand": "npm ci",
+  "env": {
+    "APP_ENV": {
+      "description": "Application environment (development, staging, or production)"
+    },
+    "CLIENT_ID": {
+      "description": "OAuth2 Client ID from Deriv API Console - REQUIRED for authentication"
+    },
+    "APP_ID": {
+      "description": "OAuth2 Application ID (optional, for legacy Deriv API routing)"
+    },
+    "GD_CLIENT_ID": {
+      "description": "Google Drive OAuth2 Client ID (optional, for Google Drive integration)"
+    },
+    "GD_APP_ID": {
+      "description": "Google Drive Project ID (optional, for Google Drive integration)"
+    },
+    "GD_API_KEY": {
+      "description": "Google Drive API Key (optional, for Google Drive integration)"
+    }
+  },
+  "envs": {
+    "production": {
+      "APP_ENV": "@production_app_env",
+      "CLIENT_ID": "@production_client_id",
+      "APP_ID": "@production_app_id"
+    },
+    "preview": {
+      "APP_ENV": "@preview_app_env",
+      "CLIENT_ID": "@preview_client_id",
+      "APP_ID": "@preview_app_id"
+    },
+    "development": {
+      "APP_ENV": "@development_app_env",
+      "CLIENT_ID": "@development_client_id",
+      "APP_ID": "@development_app_id"
+    }
+  },
+  "routes": [
+    {
+      "src": "/(?!api/)(.*)",
+      "dest": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Credentials",
+          "value": "true"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "geolocation=(), microphone=(), camera=()"
+        }
+      ]
+    }
+  ]
+}

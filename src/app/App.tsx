@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import React from 'react';
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
 import ChunkLoader from '@/components/loader/chunk-loader';
+import EnvironmentError from '@/components/env-error';
 import LocalStorageSyncWrapper from '@/components/localStorage-sync-wrapper';
 import RoutePromptDialog from '@/components/route-prompt-dialog';
 import { useAccountSwitching } from '@/hooks/useAccountSwitching';
@@ -10,6 +11,7 @@ import { useOAuthCallback } from '@/hooks/useOAuthCallback';
 import { StoreProvider } from '@/hooks/useStore';
 import { OAuthTokenExchangeService } from '@/services/oauth-token-exchange.service';
 import { initializeI18n, localize, TranslationProvider } from '@deriv-com/translations';
+import { validateEnvironment, logValidationResults } from '@/utils/env-validation';
 import CoreStoreProvider from './CoreStoreProvider';
 import './app-root.scss';
 
@@ -62,13 +64,27 @@ const router = createBrowserRouter(
  * Main App component
  *
  * Responsibilities:
- * 1. OAuth callback handling (via useOAuthCallback hook)
- * 2. Account switching from URL (via useAccountSwitching hook)
- * 3. Router provider setup
+ * 1. Environment variable validation (check for critical vars)
+ * 2. OAuth callback handling (via useOAuthCallback hook)
+ * 3. Account switching from URL (via useAccountSwitching hook)
+ * 4. Router provider setup
  *
  * All complex logic has been extracted into custom hooks for better maintainability
  */
 function App() {
+    // Validate environment variables
+    const envValidation = React.useMemo(() => validateEnvironment(), []);
+
+    // Log validation results once
+    React.useEffect(() => {
+        logValidationResults(envValidation);
+    }, [envValidation]);
+
+    // Show error component if critical environment variables are missing
+    if (!envValidation.isValid) {
+        return <EnvironmentError />;
+    }
+
     // Handle OAuth callback flow (CSRF validation + code extraction)
     const { isProcessing, isValid, params, error, cleanupURL } = useOAuthCallback();
 
