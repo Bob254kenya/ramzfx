@@ -24,23 +24,6 @@
       "description": "Google Drive API Key (optional, for Google Drive integration)"
     }
   },
-  "envs": {
-    "production": {
-      "APP_ENV": "@production_app_env",
-      "CLIENT_ID": "@production_client_id",
-      "APP_ID": "@production_app_id"
-    },
-    "preview": {
-      "APP_ENV": "@preview_app_env",
-      "CLIENT_ID": "@preview_client_id",
-      "APP_ID": "@preview_app_id"
-    },
-    "development": {
-      "APP_ENV": "@development_app_env",
-      "CLIENT_ID": "@development_client_id",
-      "APP_ID": "@development_app_id"
-    }
-  },
   "routes": [
     {
       "src": "/(?!api/)(.*)",
